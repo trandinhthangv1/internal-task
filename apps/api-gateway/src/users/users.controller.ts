@@ -24,12 +24,14 @@ export class UsersController {
 
   @Get()
   findAll() {
-    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-    // return this.usersService.findAll();
+    // throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    const value = this.usersService.findAll();
+    return value + '123';
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: any) {
+    console.log('id', id);
     return {
       data: this.usersService.findOne(+id),
     };

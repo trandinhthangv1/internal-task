@@ -1,24 +1,49 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { UsersModule } from './../src/users.module';
+import { UsersModule } from '../src/users.module';
+import { INestMicroservice } from '@nestjs/common';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { TcpOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
+import { ClientProxyFactory } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
-describe('UsersController (e2e)', () => {
-  let app: INestApplication;
+describe('AppController (E2E)', () => {
+  let app: INestMicroservice;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [UsersModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    const microserviceOptions = {
+      transport: Transport.TCP,
+      options: {
+        port: 3001,
+      },
+    };
+    app = moduleFixture.createNestMicroservice(microserviceOptions);
+    await app.listen();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('/hello (pattern)', async () => {
+    const clientProxy = ClientProxyFactory.create({
+      transport: Transport.TCP,
+      options: {
+        port: 3001,
+      },
+    });
+
+    const result = await firstValueFrom(
+      clientProxy.send<string>('users', {
+        page: '1',
+        dateRange: '123',
+        limit: '1',
+      }),
+    );
+
+    expect(result).toBe('abc');
   });
 });

@@ -8,18 +8,37 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 @Module({
   imports: [
     UsersModule,
-    ClientsModule.register([
-      {
-        name: 'USER_SERVICE',
-        transport: Transport.TCP,
-        options: { port: 3001 },
-      },
-    ]),
+    // ClientsModule.register([
+    //   {
+    //     name: 'USER_SERVICE',
+    //     transport: Transport.TCP,
+    //     options: { port: 3001 },
+    //   },
+    // ]),
   ],
   controllers: [ApiGatewayController],
-  providers: [ApiGatewayService],
+  providers: [
+    ApiGatewayService,
+    {
+      provide: 'TOKEN',
+      // useClass: class A {
+      //   get() {
+      //     return 'hihi';
+      //   }
+      // },
+      useFactory: () => {
+        return {
+          message: 123,
+        };
+      },
+    },
+  ],
 })
 export class ApiGatewayModule implements NestModule {
+  onModuleInit() {
+    console.log(`ApiGatewayModule được khởi tạo`);
+  }
+
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
   }

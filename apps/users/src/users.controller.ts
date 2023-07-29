@@ -26,13 +26,12 @@ export interface Pagination {
 export class UsersController {
   @MessagePattern('users')
   get(
-    @Payload() queryDto: QueryDto,
-    @Payload(new PaginationPipe()) pagination: Pagination,
+    @Payload('page') queryDto: QueryDto,
+    @Payload(new PaginationPipe()) pagination: any,
   ) {
     console.log('queryDto', queryDto);
     console.log('pagination', pagination);
-    // throw new Error('STATUS_CODE=400 | Not found user');
-    throw new NotFoundException('hihi123');
+
     return 'abc';
   }
 }

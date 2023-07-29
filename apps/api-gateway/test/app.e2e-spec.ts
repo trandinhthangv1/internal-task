@@ -17,7 +17,8 @@ describe('ApiGatewayController (e2e)', () => {
 
   it('/ (GET)', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/users')
+      .query({ id: 123 })
       .expect(200)
       .expect('Hello World!');
   });
