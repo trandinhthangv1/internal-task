@@ -18,8 +18,12 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@libs/pagination-transform": ["libs/pagination-transform/src"],
-      "@libs/pagination-transform/*": ["libs/pagination-transform/src/*"]
+      "@libs/pagination-transform": [
+        "libs/pagination-transform/src"
+      ],
+      "@libs/pagination-transform/*": [
+        "libs/pagination-transform/src/*"
+      ]
     }
   }
 }
