@@ -1,4 +1,15 @@
-import { Controller, Delete, Get, Inject, Query, Req } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Post,
+  Query,
+  Req,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiGatewayService } from './api-gateway.service';
 import { QueryDto } from './dto/query.dto';
 import { PaginationPipe } from './common/pipe/pagination.pipe';
@@ -10,6 +21,15 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { PaginationQuery } from './common/decorator/pagination-query.decorator';
+import { Response } from 'express';
+import { Cookies } from './common/decorator/cookies.decorator';
+import { data } from './data';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
+import * as fs from 'fs/promises';
 
 @Controller()
 export class ApiGatewayController {
@@ -24,6 +44,38 @@ export class ApiGatewayController {
     });
   }
 
+  // @Post('file')
+  // @UseInterceptors(FileInterceptor('file'))
+  // uploadFile(@Req() req) {
+  //   console.log(req.file);
+  // }
+
+  // @Post('files')
+  // @UseInterceptors(FilesInterceptor('files'))
+  // uploadFiles(@Req() req) {
+  //   console.log(req.files);
+  // }
+
+  @Post('file-fields')
+  // @UseInterceptors(
+  //   FileFieldsInterceptor([{ name: 'files' }, { name: 'avatar' }]),
+  // )
+  uploadMultiFields(@Req() req) {
+    // console.log(req.files);'
+    const data = [];
+    req.on('data', (chunk) => data.push(chunk));
+
+    req.on('end', () => {
+      const newData = Buffer.concat(data);
+      console.log(newData.toString());
+    });
+
+    // console.log(req.files.avatar[0].buffer.toString());
+    // fs.writeFile(
+    //   `./${req.files.avatar[0].originalname}`,
+    //   req.files.avatar[0].buffer,
+    // );
+  }
   // @Get()
   // async get() {
   //   const pattern = 'users';
@@ -39,16 +91,20 @@ export class ApiGatewayController {
   get(
     @Query() originQuery: QueryDto,
     @PaginationQuery(new PaginationPipe()) paginationQuery: Pagination,
-    @Req() req: Request,
+    @Cookies() cookies,
+    @Res({ passthrough: true }) res: Response,
   ) {
+    console.log(cookies);
+
     // console.log('originQuery', originQuery);
     // console.log('paginationQuery', paginationQuery);
   }
 
-  // @Get(':id')
-  // getHelloById() {
-  //   // throw new BadRequestException('Error :(((');
-  //   // throw new Error('STATUS_CODE=404 | Cannot found user');
-  //   throw new RpcException('Invalid credentials.');
-  // }
+  @Get(':id')
+  getHelloById() {
+    return JSON.stringify(data);
+    // throw new BadRequestException('Error :(((');
+    // throw new Error('STATUS_CODE=404 | Cannot found user');
+    // throw new RpcException('Invalid credentials.');
+  }
 }

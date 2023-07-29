@@ -15,7 +15,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
     let responseBody: Record<string, any> = {};
-    console.log(exception);
 
     if (exception instanceof HttpException) {
       const response = exception.getResponse(); // HttpException: response is string, OtherExceptions: response is { message, error, statusCode }

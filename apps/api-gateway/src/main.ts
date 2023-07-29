@@ -2,6 +2,8 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import * as cors from 'cors';
 import helmet from 'helmet';
+import * as cookieParser from 'cookie-parser';
+import * as compression from 'compression';
 
 import { ApiGatewayModule } from './api-gateway.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -19,6 +21,8 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
+  app.use(compression());
+  app.use(cookieParser());
   app.use(cors());
   app.use(helmet());
   app.useGlobalPipes(new ValidationPipe());
