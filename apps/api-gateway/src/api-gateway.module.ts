@@ -4,10 +4,14 @@ import { ApiGatewayService } from './api-gateway.service';
 import { UsersModule } from './users/users.module';
 import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { MaintenanceNotiModule } from './maintenance-noti/maintenance-noti.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
     UsersModule,
+    MaintenanceNotiModule,
+    HealthModule,
     // ClientsModule.register([
     //   {
     //     name: 'USER_SERVICE',

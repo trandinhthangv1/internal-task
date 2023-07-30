@@ -7,6 +7,7 @@ import {
   Query,
   Req,
   Res,
+  Sse,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -30,10 +31,20 @@ import {
   FilesInterceptor,
 } from '@nestjs/platform-express';
 import * as fs from 'fs/promises';
+import { createReadStream } from 'fs';
+import { join } from 'path';
+import { Readable } from 'stream';
+import {} from 'stream';
+import { Observable, Subject, interval, map } from 'rxjs';
+
+let sessionID = 1;
+
+const visits = {};
 
 @Controller()
 export class ApiGatewayController {
   client: ClientProxy;
+
   constructor(
     // @Inject('USER_SERVICE') private client: ClientProxy,
     @Inject('TOKEN') private token: any,
@@ -43,6 +54,43 @@ export class ApiGatewayController {
       options: { port: 3001 },
     });
   }
+
+  private sseSubject = new Subject<any>();
+
+  @Sse('sse')
+  sse(): Observable<MessageEvent> {
+    return this.sseSubject.asObservable();
+  }
+
+  @Get()
+  notification() {
+    return this.sseSubject.next('data');
+  }
+
+  // @Get()
+  // async get(@Req() req, @Res({ passthrough: true }) res) {
+  //   if (visits[req.cookies.sessionID]) {
+  //     visits[req.cookies.sessionID] = visits[req.cookies.sessionID] + 1;
+  //     console.log('visit', visits[req.cookies.sessionID]);
+  //   } else {
+  //     visits[sessionID] = 1;
+  //     res.cookie('sessionID', sessionID);
+  //   }
+
+  //   sessionID++;
+  // }
+
+  // @Get()
+  // async get(@Res() res) {
+  //   // const file = createReadStream(
+  //   //   join(process.cwd(), '/apps/api-gateway/src/data.ts'),
+  //   // );
+  //   // file.pipe(res);
+
+  //   const stream = Readable.from(JSON.stringify(data));
+  //   stream.on('data', (chunk) => console.log('---'));
+  //   stream.pipe(res);
+  // }
 
   // @Post('file')
   // @UseInterceptors(FileInterceptor('file'))
@@ -56,26 +104,26 @@ export class ApiGatewayController {
   //   console.log(req.files);
   // }
 
-  @Post('file-fields')
-  // @UseInterceptors(
-  //   FileFieldsInterceptor([{ name: 'files' }, { name: 'avatar' }]),
-  // )
-  uploadMultiFields(@Req() req) {
-    // console.log(req.files);'
-    const data = [];
-    req.on('data', (chunk) => data.push(chunk));
+  // @Post('file-fields')
+  // // @UseInterceptors(
+  // //   FileFieldsInterceptor([{ name: 'files' }, { name: 'avatar' }]),
+  // // )
+  // uploadMultiFields(@Req() req) {
+  //   // console.log(req.files);'
+  //   const data = [];
+  //   req.on('data', (chunk) => data.push(chunk));
 
-    req.on('end', () => {
-      const newData = Buffer.concat(data);
-      console.log(newData.toString());
-    });
+  //   req.on('end', () => {
+  //     const newData = Buffer.concat(data);
+  //     console.log(newData.toString());
+  //   });
 
-    // console.log(req.files.avatar[0].buffer.toString());
-    // fs.writeFile(
-    //   `./${req.files.avatar[0].originalname}`,
-    //   req.files.avatar[0].buffer,
-    // );
-  }
+  //   // console.log(req.files.avatar[0].buffer.toString());
+  //   // fs.writeFile(
+  //   //   `./${req.files.avatar[0].originalname}`,
+  //   //   req.files.avatar[0].buffer,
+  //   // );
+  // }
   // @Get()
   // async get() {
   //   const pattern = 'users';
@@ -87,24 +135,30 @@ export class ApiGatewayController {
   //   });
   // }
 
-  @Get()
-  get(
-    @Query() originQuery: QueryDto,
-    @PaginationQuery(new PaginationPipe()) paginationQuery: Pagination,
-    @Cookies() cookies,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    console.log(cookies);
+  // @Get()
+  // get(
+  //   @Query() originQuery: QueryDto,
+  //   @PaginationQuery(new PaginationPipe()) paginationQuery: Pagination,
+  //   @Cookies() cookies,
+  //   @Res({ passthrough: true }) res: Response,
+  // ) {
+  //   console.log(cookies);
 
-    // console.log('originQuery', originQuery);
-    // console.log('paginationQuery', paginationQuery);
-  }
+  //   // console.log('originQuery', originQuery);
+  //   // console.log('paginationQuery', paginationQuery);
+  // }
 
-  @Get(':id')
-  getHelloById() {
-    return JSON.stringify(data);
-    // throw new BadRequestException('Error :(((');
-    // throw new Error('STATUS_CODE=404 | Cannot found user');
-    // throw new RpcException('Invalid credentials.');
+  // @Get(':id')
+  // getHelloById() {
+  //   return JSON.stringify(data);
+  //   // throw new BadRequestException('Error :(((');
+  //   // throw new Error('STATUS_CODE=404 | Cannot found user');
+  //   // throw new RpcException('Invalid credentials.');
+  // }
+
+  @Post()
+  create(@Req() req) {
+    console.log(req.rawBody);
+    console.log(req.body);
   }
 }
